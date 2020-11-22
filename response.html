@@ -1,0 +1,132 @@
+<html>
+	<head>
+		<title>
+			Responsive Design Example
+		</title>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" type="text/css" href="style.css">
+	</head>
+	<body>
+		<div id="main">
+			<nav>
+				 <a href="#" id="menuIcon">Ξ</a>  
+				<ul>
+					<li>
+						<a href="#">Home</a>
+					</li>
+					<li>
+						<a href="#">Articles</a>
+					</li>
+					<li>
+						<a href="#">Gallery</a>
+					</li>
+					<li>
+						<a href="#">Forum</a>
+					</li>
+					<li>
+						<a href="#">About</a>
+					</li>
+				</ul>
+			</nav>
+			<aside>
+				<ul>
+					<li><a href="#subtitle1">item1</a> </li>
+					<li><a href="#subtitle2">item2</a></li>
+					<li><a href="#subtitle3">item3</a></li>
+					<li><a href="#subtitle4">item4</a></li>
+					<li><a href="#subtitle5">item5</a></li>
+				</ul>
+			</aside>
+			<section class="post">
+				<article>
+					<h1>
+						Sample Title
+					</h1>
+					<p id="subtitle1"><strong>subtitle1</strong></p>
+					<p>
+						Video provides a powerful way to help you prove your point. When you click Online
+						Video, you can paste in the embed code for the video you want to add. You can also
+						type a keyword to search online for the video that best fits your document. To make
+						your document look professionally produced, Word provides header, footer, cover page,
+						and text box designs that complement each other. For example, you can add a matching
+						cover page, header, and sidebar. Click Insert and then choose the elements you want
+						from the different galleries. Themes and styles also help keep your document coordinated.
+						When you click Design and choose a new Theme, the pictures, charts, and SmartArt
+						graphics change to match your new theme. When you apply styles, your headings change
+						to match the new theme. Save time in Word with new buttons that show up where you
+						need them.
+					</p>
+					<p id="subtitle2"><strong>subtitle2</strong></p>
+					<section class="grid">
+						<div class="item">
+							#1
+						</div>
+						<div class="item">
+							#2
+						</div>
+						<div class="item">
+							#3
+						</div>
+					</section>
+					<p>
+					<p id="subtitle3"><strong>subtitle3</strong></p>
+						To change the way a picture fits in your document, click it and a button for layout
+						options appears next to it. When you work on a table, click where you want to add
+						a row or a column, and then click the plus sign. Reading is easier, too, in the new
+						Reading view. You can collapse parts of the document and focus on the text you want.
+						If you need to stop reading before you reach the end, Word remembers where you left
+						off - even on another device. Video provides a powerful way to help you prove your
+						point. When you click Online Video, you can paste in the embed code for the video
+						you want to add. You can also type a keyword to search online for the video that
+						best fits your document. To make your document look professionally produced, Word
+						provides header, footer, cover page, and text box designs that complement each other.
+						For example, you can add a matching cover page, header, and sidebar.
+					</p>
+					<p id="subtitle4"><strong>subtitle4</strong></p>
+					<img class="illustration" src="beauty.png" title="sample pic" alt="beauty"/>
+					<p id="subtitle5"><strong>subtitle5</strong></p>
+					<p>
+						Click Insert and then choose the elements you want from the different galleries.
+						Themes and styles also help keep your document coordinated. When you click Design
+						and choose a new Theme, the pictures, charts, and SmartArt graphics change to match
+						your new theme. When you apply styles, your headings change to match the new theme.
+						Save time in Word with new buttons that show up where you need them. To change the
+						way a picture fits in your document, click it and a button for layout options appears
+						next to it. When you work on a table, click where you want to add a row or a column,
+						and then click the plus sign. Reading is easier, too, in the new Reading view. You
+						can collapse parts of the document and focus on the text you want. If you need to
+						stop reading before you reach the end, Word remembers where you left off - even on
+						another device.
+					</p>
+				</article>
+			</section>
+			<footer>
+				<hr>
+				<ul>
+					<li><small>Wayou &copy 2013|</small></li>
+					<li><small><a href="mailto:sample@somesite.com">Contact</a></small> </li>
+				</ul>
+			</footer>
+		</div>
+        <script src="http://libs.baidu.com/jquery/1.9.0/jquery.js" ></script>
+		<script type="text/javascript">
+		$(function(){
+			$("#menuIcon,nav ul li").click(function(){
+				if ($("#menuIcon").is(":visible")) {
+				$("nav ul").toggle(300);
+				};
+			});
+			$( window ).resize(function() {
+				if (!$("nav ul").is(":visible")) {
+					$('nav ul').attr('style', function(i, style)
+						{
+						    return style.replace(/display[^;]+;?/g, '');
+						});
+				};
+			});
+		})
+		</script>
+	</body>
+
+</html>
