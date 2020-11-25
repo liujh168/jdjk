@@ -1,7 +1,7 @@
 <?php
 	//接收表单数据，增加一个新的信息
-	session_start();
-
+	include "sessionid.php";
+	
 	$username = $_POST['username'];
 	$sex = $_POST['sexuality'];
 	$phone = $_POST['phone'];

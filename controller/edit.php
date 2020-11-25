@@ -1,5 +1,5 @@
 <!--用于删除主页面的某个客户数据 -->
-
+<html>
 <head>
     <title>
         京东健康电器
@@ -9,27 +9,15 @@
     <link rel="stylesheet" type="text/css" href="../css/style.css">
 
     <?php
-    session_start();
-    if (empty($_SESSION['uid'])) { //判断用于存储用户名的Session会话变量是否为空
-        //echo "session_uid为空！<br/>";
-        if (!isset($_SESSION['uid'])) {
-            //echo "session_uid not set!<br/>";
-        } else {
-            //echo "session_uid set!<br/>";
-        }
-        echo "<center>";
-        echo "请登录后使用！<br/>";
-        echo "</center>";
-        Header("refresh:1;url='../index.html'");
-        exit;
-    } else {
-        $uid = $_SESSION['uid'];     //将会话变量赋给一个变量$myvalue
-    }
 
+	include "sessionid.php";
+    include '../model/Conn.php';
+	
     $id = @$_GET['id'] ? $_GET['id'] : "";      //这里处理查询页面请求的
     if (!empty($id)) {
         $olddate = $id ;
-        include '../model/Conn.php';
+		
+		
         $sql = "select * from clients where date = '" . $id . "'";
         $res = $mysqli->query($sql);
         $attr = mysqli_fetch_assoc($res);
@@ -38,7 +26,6 @@
     } else {
         $id = @$_POST['mydate'] ? $_POST['mydate'] : "";    //这里处理修改页面请求的
         if (!empty($id)) {
-            include '../model/Conn.php';
 
             $username = $_POST['username'];
             $address = $_POST['address'];
@@ -58,6 +45,9 @@
 
             if ($mysqli->query($sql) === TRUE) {
                 echo $sql."<br>"."记录修改成功,3秒后自动返回！";
+                if($username!=""){
+                    $_SESSION['username']=$username;
+                }
                 $mysqli->close();
             } else {
                 echo $sql . "<br>"."错误出现 :" . $mysqli->error."<br>";
@@ -330,5 +320,4 @@
         })
     </script>
 </body>
-
 </html>

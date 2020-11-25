@@ -1,195 +1,14 @@
-<html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:x="urn:schemas-microsoft-com:office:excel"
+xmlns="http://www.w3.org/TR/REC-html40">
 
 <head>
-	<!--以下添加，首尾共2处大块，其它零星值的显示在中间表格内-->
-	<?php
-	include "../controller/sessionid.php";
-
-	//echo $_SESSION['username'];
-
-	//初始化表单所有数据
-	$username = @$_SESSION['username'] ? $_SESSION['username'] : "";
-	$phone = @$_SESSION['phone'] ? $_SESSION['phone'] : "";
-	$address = @$_SESSION['address'] ? $_SESSION['address'] : "";
-
-	$totals = 1;  //数组下标从1开始，老是与C++混淆 :(
-	$pdata = array();
-	while (true) {
-		$pdata["mydata$totals"]["username"] = "";
-		$pdata["mydata$totals"]["sexuality"] = "";
-		$pdata["mydata$totals"]["phone"] = "";
-		$pdata["mydata$totals"]["address"] = "";
-		$pdata["mydata$totals"]["product"] = "";
-		$pdata["mydata$totals"]["memo"] = "";
-		$pdata["mydata$totals"]["unit"] = "";
-		//$pdata["mydata$totals"]["date"]="";
-		$pdata["mydata$totals"]["print"] = 6666;
-		$pdata["mydata$totals"]["price"] = 0;
-		$pdata["mydata$totals"]["nums"] = 0;
-		$pdata["mydata$totals"]["wan"] = 0;
-		$pdata["mydata$totals"]["qian"] = 0;
-		$pdata["mydata$totals"]["bai"] = 0;
-		$pdata["mydata$totals"]["shi"] = 0;
-		$pdata["mydata$totals"]["yuan"] = 0;
-		$totals = $totals + 1;
-		if ($totals == 6) break;			//只需要初始化5组数据
-	}
-	//echo var_dump($pdata);
-
-	//include "../model/conn.php";			//包含不行？
-	$mysql_conf = array(
-		'host'    => '127.0.0.1:3306',
-		'db'      => 'jdjk',
-		'db_user' => 'root',
-		'db_pwd' => 'ljH5686!',
-	);
-	$mysqli = new mysqli($mysql_conf['host'], $mysql_conf['db_user'], $mysql_conf['db_pwd']);
-	if ($mysqli->connect_errno) {
-		die("could not connect to the database:\n" . $mysqli->connect_errno);
-	}
-	$mysqli->query("set names 'utf8';");
-	$select_db = $mysqli->select_db($mysql_conf['db']);
-	if (!$select_db) {
-		die("could not connect to the db:/n" . $mysql->error);
-	}
-
-
-
-	$sql = "select * from clients where username = \"$username\" and print = 5686 limit 5"; //还要限制是当天的
-	$result = $mysqli->query($sql);
-	echo $mysqli->error;
-
-		$totals = 1;  //数组下标从1开始，老是与C++混淆 :(
-		while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
-			$pdata["mydata$totals"] = $row;  //key为数字时，vba存取较麻烦
-			$totals = $totals + 1;
-		}
-		//echo $mysqli->error;
-		//echo var_dump($pdata);
-
-	
-		if($totals==1){		//没有数据
-			$username ="空着呢";
-			$phone=="";
-			$address ="";
-			$totals_money="";
-		}else{
-			$username = $username==""? $pdata['mydata1']['username']:$username;
-			$phone = $phone==""? $pdata['mydata1']['phone']:$phone;
-			$address = $address==""? $pdata['mydata1']['address']:$address;	
-
-			$totals_money = $pdata['mydata1']['price']*$pdata['mydata1']['nums'];
-			$totals_money += $pdata['mydata2']['price']*$pdata['mydata2']['nums'];
-			$totals_money += $pdata['mydata3']['price']*$pdata['mydata3']['nums'];
-			$totals_money += $pdata['mydata4']['price']*$pdata['mydata4']['nums'];
-			$totals_money += $pdata['mydata5']['price']*$pdata['mydata5']['nums'];	
-		}
-		
-		//以上已获取全部可用于预览的数据, 还有个编号要求递增 7位数字。
-
-		//查询是否存在打印命令，命令标志...
-		$sql = "select * from clients where print = 135";
-		$result = $mysqli->query($sql);
-		$nums = mysqli_num_rows($result);
-		$printnow = false;
-		if ($result && $nums > 0) {
-			$printnow = "true";		//控制onload事件中是否立即打印
-			$sql = "DELETE FROM `clients` WHERE `clients`.`PRINT` = '135'";
-			$mysqli->query($sql);
-		}
-		$result->close();
-		$mysqli->close();
-	?>
-
-
-
-	<SCRIPT language=javascript>
-		//关于打印的参考资料：http://edutechwiki.unige.ch/en/CSS_for_print_tutorial
-		//http://lon.im/post/css-print.html
-		//https://cdc.tencent.com/2014/08/19/print-被埋没的media-type/
-		//https://stackoverflow.com/questions/21908/silent-printing-in-a-web-application
-
-		window.onload = function() {
-			var arr = "<?php echo $printnow; ?>"
-			if (arr == "true") {
-				alert("请准备好打印机，点击确定开始远程打印！");
-				//doPrint();
-			}
-		}
-
-		function doPrint() {
-			//https://www.jb51.net/article/91476.htm //这是一个套打发票的示例  http://hiprint.io/demo/list/bill
-			//https://www.jb51.net/article/33118.htm
-			//https://www.kancloud.cn/yiqiaokeji/httpprinter
-			bdhtml = window.document.body.innerHTML;
-			sprnstr = "<!--startprint-->";
-			eprnstr = "<!--endprint-->";
-			prnhtml = bdhtml.substr(bdhtml.indexOf(sprnstr) + 17);
-			prnhtml = prnhtml.substring(0, prnhtml.indexOf(eprnstr));
-			window.document.body.innerHTML = prnhtml;
-			window.print();
-			window.document.body.innerHTML = bdhtml;
-			window.location.reload();
-
-			//var printHtml = document.getElementById("sample_26514").innerHTML;//这个元素的样式需要用内联方式，不然在新开打印对话框中没有样式
-			//var printHtml = prnhtml;
-			//var wind = window.open("",'newwindow', 'height=300, width=700, top=100, left=100, toolbar=no, menubar=no, scrollbars=no, resizable=no,location=n o, status=no');
-			//wind.document.body.innerHTML = printHtml;
-			//wind.print()
-		}
-
-		function showResult(str) {
-			if (str.length == 0) {
-				document.getElementById("livesearch").innerHTML = "";
-				document.getElementById("livesearch").style.border = "0px";
-				return;
-			}
-			if (window.XMLHttpRequest) { // IE7+, Firefox, Chrome, Opera, Safari 浏览器执行
-				xmlhttp = new XMLHttpRequest();
-			} else { // IE6, IE5 浏览器执行
-				xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
-			}
-			xmlhttp.onreadystatechange = function() {
-				if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-					document.getElementById("livesearch").innerHTML = xmlhttp.responseText;
-					document.getElementById("livesearch").style.border = "1px solid #A5ACB2";
-				}
-			}
-			xmlhttp.open("GET", "../controller/livesearch.php?q=" + str, true);
-			xmlhttp.send();
-		}
-
-		function doPrintAgain(str) {
-			var username = prompt("请输入要开票的客户名称！");
-			if (username.length == 0) {
-				alert("长度为0，没输入？");
-				word="刘建康";
-			}
-			if (window.XMLHttpRequest) { // IE7+, Firefox, Chrome, Opera, Safari 浏览器执行
-				xmlhttp = new XMLHttpRequest();
-			} else { // IE6, IE5 浏览器执行
-				xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
-			}
-			xmlhttp.onreadystatechange = function() {
-				if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-					document.getElementById("livesearch").innerHTML = xmlhttp.responseText;
-					document.getElementById("livesearch").style.border = "1px solid #A5ACB2";
-				}
-			}
-			xmlhttp.open("GET", "../controller/printagain.php?username=" + username, true);
-			xmlhttp.send();
-		}
-	</SCRIPT>
-	<meta http-equiv="refresh" content="8">
-	<!--以上添加-->
-
-
-
-	<meta http-equiv=Content-Type content="text/html; charset=utf8">
-	<meta name=ProgId content=Excel.Sheet>
-	<meta name=Generator content="Microsoft Excel 15">
-	<link rel=File-List href="preview.files/filelist.xml">
-	<!--[if !mso]>
+<meta http-equiv=Content-Type content="text/html; charset=utf8">
+<meta name=ProgId content=Excel.Sheet>
+<meta name=Generator content="Microsoft Excel 15">
+<link rel=File-List href="preview.files/filelist.xml">
+<!--[if !mso]>
 <style>
 v\:* {behavior:url(#default#VML);}
 o\:* {behavior:url(#default#VML);}
@@ -197,588 +16,518 @@ x\:* {behavior:url(#default#VML);}
 .shape {behavior:url(#default#VML);}
 </style>
 <![endif]-->
-	<style id="preview_25367_Styles">
-		<!--table
-		{
-			mso-displayed-decimal-separator: "\.";
-			mso-displayed-thousand-separator: "\,";
-		}
-
-		.font525367 {
-			color: windowtext;
-			font-size: 9.0pt;
-			font-weight: 400;
-			font-style: normal;
-			text-decoration: none;
-			font-family: 等线;
-			mso-generic-font-family: auto;
-			mso-font-charset: 134;
-		}
-
-		.font625367 {
-			color: windowtext;
-			font-size: 18.0pt;
-			font-weight: 400;
-			font-style: normal;
-			text-decoration: none;
-			font-family: 等线;
-			mso-generic-font-family: auto;
-			mso-font-charset: 134;
-		}
-
-		.font725367 {
-			color: windowtext;
-			font-size: 24.0pt;
-			font-weight: 400;
-			font-style: normal;
-			text-decoration: none;
-			font-family: 等线;
-			mso-generic-font-family: auto;
-			mso-font-charset: 134;
-		}
-
-		.font825367 {
-			color: windowtext;
-			font-size: 16.0pt;
-			font-weight: 400;
-			font-style: normal;
-			text-decoration: none;
-			font-family: 等线;
-			mso-generic-font-family: auto;
-			mso-font-charset: 134;
-		}
-
-		.xl6325367 {
-			padding: 0px;
-			mso-ignore: padding;
-			color: windowtext;
-			font-size: 14.0pt;
-			font-weight: 400;
-			font-style: normal;
-			text-decoration: none;
-			font-family: 等线;
-			mso-generic-font-family: auto;
-			mso-font-charset: 134;
-			mso-number-format: General;
-			text-align: right;
-			vertical-align: middle;
-			border-top: .5pt solid windowtext;
-			border-right: none;
-			border-bottom: .5pt solid windowtext;
-			border-left: none;
-			mso-background-source: auto;
-			mso-pattern: auto;
-			white-space: nowrap;
-		}
-
-		.xl6425367 {
-			padding: 0px;
-			mso-ignore: padding;
-			color: windowtext;
-			font-size: 14.0pt;
-			font-weight: 400;
-			font-style: normal;
-			text-decoration: none;
-			font-family: 等线;
-			mso-generic-font-family: auto;
-			mso-font-charset: 134;
-			mso-number-format: General;
-			text-align: center;
-			vertical-align: middle;
-			mso-background-source: auto;
-			mso-pattern: auto;
-			white-space: nowrap;
-		}
-
-		.xl6525367 {
-			padding: 0px;
-			mso-ignore: padding;
-			color: windowtext;
-			font-size: 14.0pt;
-			font-weight: 400;
-			font-style: normal;
-			text-decoration: none;
-			font-family: 等线;
-			mso-generic-font-family: auto;
-			mso-font-charset: 134;
-			mso-number-format: General;
-			text-align: center;
-			vertical-align: middle;
-			border: .5pt solid windowtext;
-			mso-background-source: auto;
-			mso-pattern: auto;
-			white-space: nowrap;
-		}
-
-		.xl6625367 {
-			padding: 0px;
-			mso-ignore: padding;
-			color: windowtext;
-			font-size: 10.0pt;
-			font-weight: 400;
-			font-style: normal;
-			text-decoration: none;
-			font-family: 等线;
-			mso-generic-font-family: auto;
-			mso-font-charset: 134;
-			mso-number-format: General;
-			text-align: center;
-			vertical-align: middle;
-			mso-background-source: auto;
-			mso-pattern: auto;
-			white-space: nowrap;
-		}
-
-		.xl6725367 {
-			padding: 0px;
-			mso-ignore: padding;
-			color: windowtext;
-			font-size: 10.0pt;
-			font-weight: 400;
-			font-style: normal;
-			text-decoration: none;
-			font-family: 等线;
-			mso-generic-font-family: auto;
-			mso-font-charset: 134;
-			mso-number-format: General;
-			text-align: center;
-			vertical-align: middle;
-			border: .5pt solid windowtext;
-			mso-background-source: auto;
-			mso-pattern: auto;
-			white-space: nowrap;
-		}
-
-		.xl6825367 {
-			padding: 0px;
-			mso-ignore: padding;
-			color: windowtext;
-			font-size: 14.0pt;
-			font-weight: 400;
-			font-style: normal;
-			text-decoration: none;
-			font-family: 等线;
-			mso-generic-font-family: auto;
-			mso-font-charset: 134;
-			mso-number-format: "yyyy\0022年\0022m\0022月\0022d\0022日\0022\;\@";
-			text-align: center;
-			vertical-align: middle;
-			border-top: none;
-			border-right: none;
-			border-bottom: .5pt solid windowtext;
-			border-left: none;
-			mso-background-source: auto;
-			mso-pattern: auto;
-			white-space: nowrap;
-		}
-
-		.xl6925367 {
-			padding: 0px;
-			mso-ignore: padding;
-			color: windowtext;
-			font-size: 11.0pt;
-			font-weight: 400;
-			font-style: normal;
-			text-decoration: none;
-			font-family: 等线;
-			mso-generic-font-family: auto;
-			mso-font-charset: 134;
-			mso-number-format: General;
-			text-align: left;
-			vertical-align: bottom;
-			mso-background-source: auto;
-			mso-pattern: auto;
-			white-space: nowrap;
-		}
-
-		.xl7025367 {
-			padding: 0px;
-			mso-ignore: padding;
-			color: windowtext;
-			font-size: 14.0pt;
-			font-weight: 400;
-			font-style: normal;
-			text-decoration: none;
-			font-family: 等线;
-			mso-generic-font-family: auto;
-			mso-font-charset: 134;
-			mso-number-format: General;
-			text-align: center;
-			vertical-align: middle;
-			border-top: none;
-			border-right: none;
-			border-bottom: .5pt solid windowtext;
-			border-left: none;
-			mso-background-source: auto;
-			mso-pattern: auto;
-			white-space: nowrap;
-		}
-
-		.xl7125367 {
-			padding: 0px;
-			mso-ignore: padding;
-			color: windowtext;
-			font-size: 14.0pt;
-			font-weight: 400;
-			font-style: normal;
-			text-decoration: none;
-			font-family: 等线;
-			mso-generic-font-family: auto;
-			mso-font-charset: 134;
-			mso-number-format: General;
-			text-align: center;
-			vertical-align: middle;
-			border-top: .5pt solid windowtext;
-			border-right: .5pt solid windowtext;
-			border-bottom: none;
-			border-left: .5pt solid windowtext;
-			mso-background-source: auto;
-			mso-pattern: auto;
-			white-space: normal;
-		}
-
-		.xl7225367 {
-			padding: 0px;
-			mso-ignore: padding;
-			color: windowtext;
-			font-size: 14.0pt;
-			font-weight: 400;
-			font-style: normal;
-			text-decoration: none;
-			font-family: 等线;
-			mso-generic-font-family: auto;
-			mso-font-charset: 134;
-			mso-number-format: General;
-			text-align: center;
-			vertical-align: middle;
-			border-top: none;
-			border-right: .5pt solid windowtext;
-			border-bottom: none;
-			border-left: .5pt solid windowtext;
-			mso-background-source: auto;
-			mso-pattern: auto;
-			white-space: normal;
-		}
-
-		.xl7325367 {
-			padding: 0px;
-			mso-ignore: padding;
-			color: windowtext;
-			font-size: 12.0pt;
-			font-weight: 400;
-			font-style: normal;
-			text-decoration: none;
-			font-family: 等线;
-			mso-generic-font-family: auto;
-			mso-font-charset: 134;
-			mso-number-format: General;
-			text-align: left;
-			vertical-align: middle;
-			border-top: none;
-			border-right: .5pt solid windowtext;
-			border-bottom: none;
-			border-left: .5pt solid windowtext;
-			background: white;
-			mso-pattern: black none;
-			white-space: normal;
-		}
-
-		.xl7425367 {
-			padding: 0px;
-			mso-ignore: padding;
-			color: windowtext;
-			font-size: 12.0pt;
-			font-weight: 400;
-			font-style: normal;
-			text-decoration: none;
-			font-family: 等线;
-			mso-generic-font-family: auto;
-			mso-font-charset: 134;
-			mso-number-format: General;
-			text-align: left;
-			vertical-align: middle;
-			border-top: none;
-			border-right: .5pt solid windowtext;
-			border-bottom: .5pt solid windowtext;
-			border-left: .5pt solid windowtext;
-			background: white;
-			mso-pattern: black none;
-			white-space: normal;
-		}
-
-		.xl7525367 {
-			padding: 0px;
-			mso-ignore: padding;
-			color: windowtext;
-			font-size: 16.0pt;
-			font-weight: 400;
-			font-style: normal;
-			text-decoration: underline;
-			text-underline-style: single;
-			font-family: 等线;
-			mso-generic-font-family: auto;
-			mso-font-charset: 134;
-			mso-number-format: General;
-			text-align: center;
-			vertical-align: middle;
-			border-top: .5pt solid windowtext;
-			border-right: none;
-			border-bottom: .5pt solid windowtext;
-			border-left: none;
-			mso-background-source: auto;
-			mso-pattern: auto;
-			white-space: nowrap;
-		}
-
-		.xl7625367 {
-			padding: 0px;
-			mso-ignore: padding;
-			color: windowtext;
-			font-size: 16.0pt;
-			font-weight: 400;
-			font-style: normal;
-			text-decoration: underline;
-			text-underline-style: single;
-			font-family: 等线;
-			mso-generic-font-family: auto;
-			mso-font-charset: 134;
-			mso-number-format: General;
-			text-align: center;
-			vertical-align: middle;
-			border-top: .5pt solid windowtext;
-			border-right: .5pt solid windowtext;
-			border-bottom: .5pt solid windowtext;
-			border-left: none;
-			mso-background-source: auto;
-			mso-pattern: auto;
-			white-space: nowrap;
-		}
-
-		.xl7725367 {
-			padding: 0px;
-			mso-ignore: padding;
-			color: windowtext;
-			font-size: 14.0pt;
-			font-weight: 400;
-			font-style: normal;
-			text-decoration: none;
-			font-family: 等线;
-			mso-generic-font-family: auto;
-			mso-font-charset: 134;
-			mso-number-format: General;
-			text-align: left;
-			vertical-align: middle;
-			border-top: .5pt solid windowtext;
-			border-right: none;
-			border-bottom: .5pt solid windowtext;
-			border-left: .5pt solid windowtext;
-			mso-background-source: auto;
-			mso-pattern: auto;
-			white-space: nowrap;
-		}
-
-		.xl7825367 {
-			padding: 0px;
-			mso-ignore: padding;
-			color: windowtext;
-			font-size: 14.0pt;
-			font-weight: 400;
-			font-style: normal;
-			text-decoration: none;
-			font-family: 等线;
-			mso-generic-font-family: auto;
-			mso-font-charset: 134;
-			mso-number-format: General;
-			text-align: left;
-			vertical-align: middle;
-			border-top: .5pt solid windowtext;
-			border-right: none;
-			border-bottom: .5pt solid windowtext;
-			border-left: none;
-			mso-background-source: auto;
-			mso-pattern: auto;
-			white-space: nowrap;
-		}
-
-		.xl7925367 {
-			padding: 0px;
-			mso-ignore: padding;
-			color: red;
-			font-size: 20.0pt;
-			font-weight: 400;
-			font-style: normal;
-			text-decoration: none;
-			font-family: 等线;
-			mso-generic-font-family: auto;
-			mso-font-charset: 134;
-			mso-number-format: General;
-			text-align: right;
-			vertical-align: middle;
-			mso-background-source: auto;
-			mso-pattern: auto;
-			white-space: nowrap;
-		}
-
-		.xl8025367 {
-			padding: 0px;
-			mso-ignore: padding;
-			color: windowtext;
-			font-size: 14.0pt;
-			font-weight: 400;
-			font-style: normal;
-			text-decoration: none;
-			font-family: 等线;
-			mso-generic-font-family: auto;
-			mso-font-charset: 134;
-			mso-number-format: General;
-			text-align: right;
-			vertical-align: middle;
-			mso-background-source: auto;
-			mso-pattern: auto;
-			white-space: nowrap;
-		}
-
-		.xl8125367 {
-			padding: 0px;
-			mso-ignore: padding;
-			color: windowtext;
-			font-size: 14.0pt;
-			font-weight: 400;
-			font-style: normal;
-			text-decoration: none;
-			font-family: 等线;
-			mso-generic-font-family: auto;
-			mso-font-charset: 134;
-			mso-number-format: General;
-			text-align: left;
-			vertical-align: bottom;
-			mso-background-source: auto;
-			mso-pattern: auto;
-			white-space: nowrap;
-		}
-
-		.xl8225367 {
-			padding: 0px;
-			mso-ignore: padding;
-			color: windowtext;
-			font-size: 10.0pt;
-			font-weight: 400;
-			font-style: normal;
-			text-decoration: none;
-			font-family: 等线;
-			mso-generic-font-family: auto;
-			mso-font-charset: 134;
-			mso-number-format: "General Date";
-			text-align: center;
-			vertical-align: middle;
-			mso-background-source: auto;
-			mso-pattern: auto;
-			white-space: nowrap;
-		}
-
-		.xl8325367 {
-			padding: 0px;
-			mso-ignore: padding;
-			color: windowtext;
-			font-size: 18.0pt;
-			font-weight: 400;
-			font-style: normal;
-			text-decoration: none;
-			font-family: 等线;
-			mso-generic-font-family: auto;
-			mso-font-charset: 134;
-			mso-number-format: General;
-			text-align: center;
-			vertical-align: middle;
-			mso-background-source: auto;
-			mso-pattern: auto;
-			white-space: nowrap;
-		}
-
-		ruby {
-			ruby-align: left;
-		}
-
-		rt {
-			color: windowtext;
-			font-size: 9.0pt;
-			font-weight: 400;
-			font-style: normal;
-			text-decoration: none;
-			font-family: 等线;
-			mso-generic-font-family: auto;
-			mso-font-charset: 134;
-			mso-char-type: none;
-		}
-		-->
-	</style>
+<style id="preview_25367_Styles">
+<!--table
+	{mso-displayed-decimal-separator:"\.";
+	mso-displayed-thousand-separator:"\,";}
+.font525367
+	{color:windowtext;
+	font-size:9.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:等线;
+	mso-generic-font-family:auto;
+	mso-font-charset:134;}
+.font625367
+	{color:windowtext;
+	font-size:18.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:等线;
+	mso-generic-font-family:auto;
+	mso-font-charset:134;}
+.font725367
+	{color:windowtext;
+	font-size:24.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:等线;
+	mso-generic-font-family:auto;
+	mso-font-charset:134;}
+.font825367
+	{color:windowtext;
+	font-size:16.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:等线;
+	mso-generic-font-family:auto;
+	mso-font-charset:134;}
+.xl6325367
+	{padding:0px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:14.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:等线;
+	mso-generic-font-family:auto;
+	mso-font-charset:134;
+	mso-number-format:General;
+	text-align:right;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:none;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	white-space:nowrap;}
+.xl6425367
+	{padding:0px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:14.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:等线;
+	mso-generic-font-family:auto;
+	mso-font-charset:134;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	white-space:nowrap;}
+.xl6525367
+	{padding:0px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:14.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:等线;
+	mso-generic-font-family:auto;
+	mso-font-charset:134;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	border:.5pt solid windowtext;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	white-space:nowrap;}
+.xl6625367
+	{padding:0px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:等线;
+	mso-generic-font-family:auto;
+	mso-font-charset:134;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	white-space:nowrap;}
+.xl6725367
+	{padding:0px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:等线;
+	mso-generic-font-family:auto;
+	mso-font-charset:134;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	border:.5pt solid windowtext;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	white-space:nowrap;}
+.xl6825367
+	{padding:0px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:14.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:等线;
+	mso-generic-font-family:auto;
+	mso-font-charset:134;
+	mso-number-format:"yyyy\0022年\0022m\0022月\0022d\0022日\0022\;\@";
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:none;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	white-space:nowrap;}
+.xl6925367
+	{padding:0px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:11.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:等线;
+	mso-generic-font-family:auto;
+	mso-font-charset:134;
+	mso-number-format:General;
+	text-align:left;
+	vertical-align:bottom;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	white-space:nowrap;}
+.xl7025367
+	{padding:0px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:14.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:等线;
+	mso-generic-font-family:auto;
+	mso-font-charset:134;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:none;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	white-space:nowrap;}
+.xl7125367
+	{padding:0px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:14.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:等线;
+	mso-generic-font-family:auto;
+	mso-font-charset:134;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:none;
+	border-left:.5pt solid windowtext;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	white-space:normal;}
+.xl7225367
+	{padding:0px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:14.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:等线;
+	mso-generic-font-family:auto;
+	mso-font-charset:134;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	border-top:none;
+	border-right:.5pt solid windowtext;
+	border-bottom:none;
+	border-left:.5pt solid windowtext;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	white-space:normal;}
+.xl7325367
+	{padding:0px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:12.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:等线;
+	mso-generic-font-family:auto;
+	mso-font-charset:134;
+	mso-number-format:General;
+	text-align:left;
+	vertical-align:middle;
+	border-top:none;
+	border-right:.5pt solid windowtext;
+	border-bottom:none;
+	border-left:.5pt solid windowtext;
+	background:white;
+	mso-pattern:black none;
+	white-space:normal;}
+.xl7425367
+	{padding:0px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:12.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:等线;
+	mso-generic-font-family:auto;
+	mso-font-charset:134;
+	mso-number-format:General;
+	text-align:left;
+	vertical-align:middle;
+	border-top:none;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt solid windowtext;
+	border-left:.5pt solid windowtext;
+	background:white;
+	mso-pattern:black none;
+	white-space:normal;}
+.xl7525367
+	{padding:0px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:16.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:underline;
+	text-underline-style:single;
+	font-family:等线;
+	mso-generic-font-family:auto;
+	mso-font-charset:134;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:none;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	white-space:nowrap;}
+.xl7625367
+	{padding:0px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:16.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:underline;
+	text-underline-style:single;
+	font-family:等线;
+	mso-generic-font-family:auto;
+	mso-font-charset:134;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	white-space:nowrap;}
+.xl7725367
+	{padding:0px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:14.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:等线;
+	mso-generic-font-family:auto;
+	mso-font-charset:134;
+	mso-number-format:General;
+	text-align:left;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:none;
+	border-bottom:.5pt solid windowtext;
+	border-left:.5pt solid windowtext;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	white-space:nowrap;}
+.xl7825367
+	{padding:0px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:14.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:等线;
+	mso-generic-font-family:auto;
+	mso-font-charset:134;
+	mso-number-format:General;
+	text-align:left;
+	vertical-align:middle;
+	border-top:.5pt solid windowtext;
+	border-right:none;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	white-space:nowrap;}
+.xl7925367
+	{padding:0px;
+	mso-ignore:padding;
+	color:red;
+	font-size:20.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:等线;
+	mso-generic-font-family:auto;
+	mso-font-charset:134;
+	mso-number-format:General;
+	text-align:right;
+	vertical-align:middle;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	white-space:nowrap;}
+.xl8025367
+	{padding:0px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:14.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:等线;
+	mso-generic-font-family:auto;
+	mso-font-charset:134;
+	mso-number-format:General;
+	text-align:right;
+	vertical-align:middle;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	white-space:nowrap;}
+.xl8125367
+	{padding:0px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:14.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:等线;
+	mso-generic-font-family:auto;
+	mso-font-charset:134;
+	mso-number-format:General;
+	text-align:left;
+	vertical-align:bottom;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	white-space:nowrap;}
+.xl8225367
+	{padding:0px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:10.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:等线;
+	mso-generic-font-family:auto;
+	mso-font-charset:134;
+	mso-number-format:"General Date";
+	text-align:center;
+	vertical-align:middle;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	white-space:nowrap;}
+.xl8325367
+	{padding:0px;
+	mso-ignore:padding;
+	color:windowtext;
+	font-size:18.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:等线;
+	mso-generic-font-family:auto;
+	mso-font-charset:134;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	white-space:nowrap;}
+ruby
+	{ruby-align:left;}
+rt
+	{color:windowtext;
+	font-size:9.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:等线;
+	mso-generic-font-family:auto;
+	mso-font-charset:134;
+	mso-char-type:none;}
+-->
+</style>
 </head>
 
 <body>
+<!--[if !excel]>　　<![endif]-->
+<!--下列信息由 Microsoft Excel 的发布为网页向导生成。-->
+<!--如果同一条目从 Excel 中重新发布，则所有位于 DIV 标记之间的信息均将被替换。-->
+<!----------------------------->
+<!--“从 EXCEL 发布网页”向导开始-->
+<!----------------------------->
 
+<div id="preview_25367" align=center x:publishsource="Excel">
 
-	<!--startprint-->
-	<style media="print">
-		@page {
-			size: portrait; // portrait纵向打印   landscape横向打印
-			/* 去掉页眉页脚 */
-			size: 210mm 290mm​;
-			/* auto is the initial value */
-			margin: 0mm auto;
-		}
-	</style>
-
-
-
-	<!--[if !excel]>　　<![endif]-->
-	<!--下列信息由 Microsoft Excel 的发布为网页向导生成。-->
-	<!--如果同一条目从 Excel 中重新发布，则所有位于 DIV 标记之间的信息均将被替换。-->
-	<!----------------------------->
-	<!--“从 EXCEL 发布网页”向导开始-->
-	<!----------------------------->
-
-	<div id="preview_25367" align=center x:publishsource="Excel">
-
-		<table border=0 cellpadding=0 cellspacing=0 width=620 class=xl6625367 style='border-collapse:collapse;table-layout:fixed;width:466pt'>
-			<col class=xl6625367 width=43 style='mso-width-source:userset;mso-width-alt:
+<table border=0 cellpadding=0 cellspacing=0 width=620 class=xl6625367
+ style='border-collapse:collapse;table-layout:fixed;width:466pt'>
+ <col class=xl6625367 width=43 style='mso-width-source:userset;mso-width-alt:
  1536;width:32pt'>
-			<col class=xl6625367 width=54 style='mso-width-source:userset;mso-width-alt:
+ <col class=xl6625367 width=54 style='mso-width-source:userset;mso-width-alt:
  1934;width:41pt'>
-			<col class=xl6625367 width=43 span=2 style='mso-width-source:userset;
+ <col class=xl6625367 width=43 span=2 style='mso-width-source:userset;
  mso-width-alt:1536;width:32pt'>
-			<col class=xl6625367 width=26 style='mso-width-source:userset;mso-width-alt:
+ <col class=xl6625367 width=26 style='mso-width-source:userset;mso-width-alt:
  938;width:20pt'>
-			<col class=xl6625367 width=32 style='mso-width-source:userset;mso-width-alt:
+ <col class=xl6625367 width=32 style='mso-width-source:userset;mso-width-alt:
  1137;width:24pt'>
-			<col class=xl6625367 width=33 style='mso-width-source:userset;mso-width-alt:
+ <col class=xl6625367 width=33 style='mso-width-source:userset;mso-width-alt:
  1166;width:25pt'>
-			<col class=xl6625367 width=51 style='mso-width-source:userset;mso-width-alt:
+ <col class=xl6625367 width=51 style='mso-width-source:userset;mso-width-alt:
  1820;width:38pt'>
-			<col class=xl6625367 width=20 span=3 style='mso-width-source:userset;
+ <col class=xl6625367 width=20 span=3 style='mso-width-source:userset;
  mso-width-alt:711;width:15pt'>
-			<col class=xl6625367 width=22 style='mso-width-source:userset;mso-width-alt:
+ <col class=xl6625367 width=22 style='mso-width-source:userset;mso-width-alt:
  796;width:17pt'>
-			<col class=xl6625367 width=22 style='mso-width-source:userset;mso-width-alt:
+ <col class=xl6625367 width=22 style='mso-width-source:userset;mso-width-alt:
  768;width:16pt'>
-			<col class=xl6625367 width=5 style='mso-width-source:userset;mso-width-alt:
+ <col class=xl6625367 width=5 style='mso-width-source:userset;mso-width-alt:
  170;width:4pt'>
-			<col class=xl6625367 width=46 style='mso-width-source:userset;mso-width-alt:
+ <col class=xl6625367 width=46 style='mso-width-source:userset;mso-width-alt:
  1649;width:35pt'>
-			<col class=xl6625367 width=19 style='mso-width-source:userset;mso-width-alt:
+ <col class=xl6625367 width=19 style='mso-width-source:userset;mso-width-alt:
  682;width:14pt'>
-			<col class=xl6625367 width=22 style='mso-width-source:userset;mso-width-alt:
+ <col class=xl6625367 width=22 style='mso-width-source:userset;mso-width-alt:
  796;width:17pt'>
-			<col class=xl6625367 width=19 style='mso-width-source:userset;mso-width-alt:
+ <col class=xl6625367 width=19 style='mso-width-source:userset;mso-width-alt:
  682;width:14pt'>
-			<col class=xl6625367 width=26 style='mso-width-source:userset;mso-width-alt:
+ <col class=xl6625367 width=26 style='mso-width-source:userset;mso-width-alt:
  910;width:19pt'>
-			<col class=xl6625367 width=21 style='mso-width-source:userset;mso-width-alt:
+ <col class=xl6625367 width=21 style='mso-width-source:userset;mso-width-alt:
  739;width:16pt'>
-			<col class=xl6625367 width=33 style='mso-width-source:userset;mso-width-alt:
+ <col class=xl6625367 width=33 style='mso-width-source:userset;mso-width-alt:
  1166;width:25pt'>
-			<tr height=50 style='mso-height-source:userset;height:37.8pt'>
-				<td colspan=2 height=50 width=97 style='height:37.8pt;width:73pt' align=left valign=top>
-					<!--[if gte vml 1]><v:shapetype id="_x0000_t75" coordsize="21600,21600"
+ <tr height=50 style='mso-height-source:userset;height:37.8pt'>
+  <td colspan=2 height=50 width=97 style='height:37.8pt;width:73pt' align=left
+  valign=top><!--[if gte vml 1]><v:shapetype id="_x0000_t75" coordsize="21600,21600"
    o:spt="75" o:preferrelative="t" path="m@4@5l@4@11@9@11@9@5xe" filled="f"
    stroked="f">
    <v:stroke joinstyle="miter"/>
@@ -1186,56 +935,53 @@ cnMvbWVkaWEvaW1hZ2UxLnBuZ1BLBQYAAAAABgAGAIQBAACHJwAAAAA=
     <x:CF>Bitmap</x:CF>
     <x:AutoPict/>
    </x:ClientData>
-  </v:shape><![endif]-->
-					<![if !vml]><span style='mso-ignore:vglayout;
+  </v:shape><![endif]--><![if !vml]><span style='mso-ignore:vglayout;
   position:absolute;z-index:2;margin-left:21px;margin-top:0px;width:84px;
-  height:60px'><img width=84 height=60 src="preview.files/preview_25367_image002.png" v:shapes="图片_x0020_1 图片_x0020_5"></span>
-					<![endif]><span style='mso-ignore:vglayout2'>
-						<table cellpadding=0 cellspacing=0>
-							<tr>
-								<td colspan=2 height=50 class=xl8225367 width=97 style='height:37.8pt;
+  height:60px'><img width=84 height=60
+  src="preview.files/preview_25367_image002.png" v:shapes="图片_x0020_1 图片_x0020_5"></span><![endif]><span
+  style='mso-ignore:vglayout2'>
+  <table cellpadding=0 cellspacing=0>
+   <tr>
+    <td colspan=2 height=50 class=xl8225367 width=97 style='height:37.8pt;
     width:73pt'><a name="RANGE!A1:U13"></a></td>
-							</tr>
-						</table>
-					</span></td>
-				<td colspan=13 class=xl8325367 width=383 style='width:288pt'>
-					<font class="font725367">京东家电专卖店</font>
-					<font class="font625367"><span style='mso-spacerun:yes'>&nbsp; </span></font>
-					<font class="font825367">商品销售单</font>
-				</td>
-				<td colspan=5 class=xl7925367 width=107 style='width:80pt'>0004858</td>
-				<td class=xl6625367 width=33 style='width:25pt'></td>
-			</tr>
-			<tr height=45 style='mso-height-source:userset;height:33.6pt'>
-				<td colspan=15 height=45 class=xl8125367 style='height:33.6pt'>沅江市三眼塘店
-					JD29789<span style='mso-spacerun:yes'>&nbsp;&nbsp; </span>电话: 0737-2982123
-					18907376948</td>
-				<td colspan=5 class=xl8025367>店长 刘建康</td>
-				<td class=xl6625367></td>
-			</tr>
-			<tr height=43 style='mso-height-source:userset;height:32.4pt'>
-				<td height=43 class=xl6425367 style='height:32.4pt'>客户</td>
-				<td class=xl6425367><?php echo $username ?></td>
-				<td colspan=3 class=xl7025367><?php echo $address ?></td>
-				<td colspan=4 class=xl7025367><?php echo $phone ?></td>
-				<td colspan=4 class=xl7025367>销售日期：</td>
-				<td class=xl6625367></td>
-				<td colspan=6 class=xl6825367><?php  	echo date('Y年m月d日');
-									//setlocale(LC_ALL,”chs”);
-									//echo getdate()["year"]."年".getdate()["month"]."月".getdate()["mday"]."日" ;
-									?></td>
-				<td class=xl6625367></td>
-			</tr>
-			<tr height=35 style='mso-height-source:userset;height:26.4pt'>
-				<td colspan=5 rowspan=2 height=65 class=xl6525367 style='height:48.6pt'>商<span style='mso-spacerun:yes'>&nbsp;&nbsp;&nbsp; </span>品<span style='mso-spacerun:yes'>&nbsp;&nbsp;&nbsp; </span>名<span style='mso-spacerun:yes'>&nbsp;&nbsp;&nbsp; </span>称</td>
-				<td rowspan=2 class=xl6525367 style='border-top:none'>数量</td>
-				<td rowspan=2 class=xl6525367 style='border-top:none'>单位</td>
-				<td rowspan=2 class=xl6525367 style='border-top:none'>单价</td>
-				<td colspan=5 class=xl6525367 style='border-left:none'>金额</td>
-				<td colspan=7 rowspan=2 class=xl6525367>备注</td>
-				<td rowspan=8 height=275 class=xl6625367 width=33 style='mso-ignore:colspan-rowspan;
-  height:207.0pt;width:25pt'>
-					<!--[if gte vml 1]><v:shape id="图片_x0020_3"
+   </tr>
+  </table>
+  </span></td>
+  <td colspan=13 class=xl8325367 width=383 style='width:288pt'><font
+  class="font725367">京东家电专卖店</font><font class="font625367"><span
+  style='mso-spacerun:yes'>&nbsp; </span></font><font class="font825367">商品销售单</font></td>
+  <td colspan=5 class=xl7925367 width=107 style='width:80pt'>0004858</td>
+  <td class=xl6625367 width=33 style='width:25pt'></td>
+ </tr>
+ <tr height=45 style='mso-height-source:userset;height:33.6pt'>
+  <td colspan=15 height=45 class=xl8125367 style='height:33.6pt'>沅江市三眼塘店
+  JD29789<span style='mso-spacerun:yes'>&nbsp;&nbsp; </span>电话: 0737-2982123
+  18907376948</td>
+  <td colspan=5 class=xl8025367>店长 刘建康</td>
+  <td class=xl6625367></td>
+ </tr>
+ <tr height=43 style='mso-height-source:userset;height:32.4pt'>
+  <td height=43 class=xl6425367 style='height:32.4pt'>客户</td>
+  <td class=xl6425367>康</td>
+  <td colspan=3 class=xl7025367>士</td>
+  <td colspan=4 class=xl7025367>2982123</td>
+  <td colspan=4 class=xl7025367>销售日期：</td>
+  <td class=xl6625367></td>
+  <td colspan=6 class=xl6825367>2020年11月22日</td>
+  <td class=xl6625367></td>
+ </tr>
+ <tr height=35 style='mso-height-source:userset;height:26.4pt'>
+  <td colspan=5 rowspan=2 height=65 class=xl6525367 style='height:48.6pt'>商<span
+  style='mso-spacerun:yes'>&nbsp;&nbsp;&nbsp; </span>品<span
+  style='mso-spacerun:yes'>&nbsp;&nbsp;&nbsp; </span>名<span
+  style='mso-spacerun:yes'>&nbsp;&nbsp;&nbsp; </span>称</td>
+  <td rowspan=2 class=xl6525367 style='border-top:none'>数量</td>
+  <td rowspan=2 class=xl6525367 style='border-top:none'>单位</td>
+  <td rowspan=2 class=xl6525367 style='border-top:none'>单价</td>
+  <td colspan=5 class=xl6525367 style='border-left:none'>金额</td>
+  <td colspan=7 rowspan=2 class=xl6525367>备注</td>
+  <td rowspan=8 height=275 class=xl6625367 width=33 style='mso-ignore:colspan-rowspan;
+  height:207.0pt;width:25pt'><!--[if gte vml 1]><v:shape id="图片_x0020_3"
    o:spid="_x0000_s3073" type="#_x0000_t75" style='position:absolute;
    margin-left:1.2pt;margin-top:5.4pt;width:16.8pt;height:195pt;z-index:1;
    visibility:visible' o:gfxdata="UEsDBBQABgAIAAAAIQBamK3CDAEAABgCAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbJSRwU7DMAyG
@@ -1452,158 +1198,141 @@ cnMvbWVkaWEvaW1hZ2UxLnBuZ1BLBQYAAAAABgAGAIQBAABhFAAAAAA=
     <x:CF>Bitmap</x:CF>
     <x:AutoPict/>
    </x:ClientData>
-  </v:shape><![endif]-->
-					<![if !vml]><span style='mso-ignore:vglayout'>
-						<table cellpadding=0 cellspacing=0>
-							<tr>
-								<td width=2 height=8></td>
-							</tr>
-							<tr>
-								<td></td>
-								<td><img width=22 height=260 src="preview.files/preview_25367_image004.png" v:shapes="图片_x0020_3 图片_x0020_4"></td>
-								<td width=20></td>
-							</tr>
-							<tr>
-								<td height=77></td>
-							</tr>
-						</table>
-					</span>
-					<![endif]>
-					<!--[if !mso & vml]><span style='width:26.4pt;height:207.0pt'></span><![endif]-->
-				</td>
-			</tr>
-			<tr height=30 style='mso-height-source:userset;height:22.2pt'>
-				<td height=30 class=xl6525367 style='height:22.2pt;border-top:none;
+  </v:shape><![endif]--><![if !vml]><span style='mso-ignore:vglayout'>
+  <table cellpadding=0 cellspacing=0>
+   <tr>
+    <td width=2 height=8></td>
+   </tr>
+   <tr>
+    <td></td>
+    <td><img width=22 height=260 src="preview.files/preview_25367_image004.png"
+    v:shapes="图片_x0020_3 图片_x0020_4"></td>
+    <td width=20></td>
+   </tr>
+   <tr>
+    <td height=77></td>
+   </tr>
+  </table>
+  </span><![endif]><!--[if !mso & vml]><span style='width:26.4pt;height:207.0pt'></span><![endif]--></td>
+ </tr>
+ <tr height=30 style='mso-height-source:userset;height:22.2pt'>
+  <td height=30 class=xl6525367 style='height:22.2pt;border-top:none;
   border-left:none'>万</td>
-				<td class=xl6525367 style='border-top:none;border-left:none'>千</td>
-				<td class=xl6525367 style='border-top:none;border-left:none'>百</td>
-				<td class=xl6525367 style='border-top:none;border-left:none'>十</td>
-				<td class=xl6525367 style='border-top:none;border-left:none'>元</td>
-			</tr>
-			<tr height=35 style='mso-height-source:userset;height:26.4pt'>
-				<td colspan=5 height=35 class=xl6525367 style='height:26.4pt'><?php echo $pdata['mydata1']['product'] ?></td>
-				<td class=xl6725367 style='border-top:none;border-left:none'><?php echo $pdata['mydata1']['nums']==0?"":$pdata['mydata1']['nums']  ?></td>
-				<td class=xl6725367 style='border-top:none;border-left:none'><?php echo $pdata['mydata1']['unit'] ?></td>
-				<td class=xl6725367 style='border-top:none;border-left:none'><?php echo $pdata['mydata1']['price']==0?"":$pdata['mydata1']['price']  ?></td>
-				<td class=xl6725367 style='border-top:none;border-left:none'>　</td>
-				<td class=xl6725367 style='border-top:none;border-left:none'>　</td>
-				<td class=xl6725367 style='border-top:none;border-left:none'>  </td>
-				<td class=xl6725367 style='border-top:none;border-left:none'>　</td>
-				<td class=xl6725367 style='border-top:none;border-left:none'>　</td>
-				<td colspan=7 rowspan=3 class=xl7125367 width=158 style='width:119pt'>备注</td>
-			</tr>
-			<tr height=35 style='mso-height-source:userset;height:26.4pt'>
-				<td colspan=5 height=35 class=xl6525367 style='height:26.4pt'><?php echo $pdata['mydata2']['product'] ?></td>
-				<td class=xl6725367 style='border-top:none;border-left:none'><?php echo $pdata['mydata2']['nums']==0?"":$pdata['mydata2']['nums']  ?></td>
-				<td class=xl6725367 style='border-top:none;border-left:none'><?php echo $pdata['mydata2']['unit'] ?></td>
-				<td class=xl6725367 style='border-top:none;border-left:none'><?php echo $pdata['mydata2']['price']==0?"":$pdata['mydata2']['price']  ?></td>
-				<td class=xl6725367 style='border-top:none;border-left:none'>　</td>
-				<td class=xl6725367 style='border-top:none;border-left:none'>　</td>
-				<td class=xl6725367 style='border-top:none;border-left:none'> </td>
-				<td class=xl6725367 style='border-top:none;border-left:none'> </td>
-				<td class=xl6725367 style='border-top:none;border-left:none'> </td>
-			</tr>
-			<tr height=35 style='mso-height-source:userset;height:26.4pt'>
-				<td colspan=5 height=35 class=xl6525367 style='height:26.4pt'><?php echo $pdata['mydata3']['product'] ?></td>
-				<td class=xl6725367 style='border-top:none;border-left:none'><?php echo $pdata['mydata3']['nums']==0?"":$pdata['mydata3']['nums']  ?></td>
-				<td class=xl6725367 style='border-top:none;border-left:none'><?php echo $pdata['mydata3']['unit'] ?></td>
-				<td class=xl6725367 style='border-top:none;border-left:none'><?php echo $pdata['mydata3']['price']==0?"":$pdata['mydata3']['price']  ?></td>
-				<td class=xl6725367 style='border-top:none;border-left:none'> </td>
-				<td class=xl6725367 style='border-top:none;border-left:none'> </td>
-				<td class=xl6725367 style='border-top:none;border-left:none'> </td>
-				<td class=xl6725367 style='border-top:none;border-left:none'> </td>
-				<td class=xl6725367 style='border-top:none;border-left:none'> </td>
-			</tr>
-			<tr height=35 style='mso-height-source:userset;height:26.4pt'>
-				<td colspan=5 height=35 class=xl6525367 style='height:26.4pt'><?php echo $pdata['mydata4']['product'] ?></td>
-				<td class=xl6725367 style='border-top:none;border-left:none'><?php echo $pdata['mydata4']['nums']==0?"":$pdata['mydata4']['nums']  ?></td>
-				<td class=xl6725367 style='border-top:none;border-left:none'><?php echo $pdata['mydata4']['unit'] ?></td>
-				<td class=xl6725367 style='border-top:none;border-left:none'><?php echo $pdata['mydata4']['price']==0?"":$pdata['mydata4']['price']  ?></td>
-				<td class=xl6725367 style='border-top:none;border-left:none'>  </td>
-				<td class=xl6725367 style='border-top:none;border-left:none'>  </td>
-				<td class=xl6725367 style='border-top:none;border-left:none'>  </td>
-				<td class=xl6725367 style='border-top:none;border-left:none'>  </td>
-				<td class=xl6725367 style='border-top:none;border-left:none'>  </td>
-				<td colspan=7 rowspan=3 class=xl7325367 width=158 style='border-bottom:.5pt solid black;
+  <td class=xl6525367 style='border-top:none;border-left:none'>千</td>
+  <td class=xl6525367 style='border-top:none;border-left:none'>百</td>
+  <td class=xl6525367 style='border-top:none;border-left:none'>十</td>
+  <td class=xl6525367 style='border-top:none;border-left:none'>元</td>
+ </tr>
+ <tr height=35 style='mso-height-source:userset;height:26.4pt'>
+  <td colspan=5 height=35 class=xl6525367 style='height:26.4pt'>美</td>
+  <td class=xl6725367 style='border-top:none;border-left:none'>2</td>
+  <td class=xl6725367 style='border-top:none;border-left:none'>个</td>
+  <td class=xl6725367 style='border-top:none;border-left:none'>300</td>
+  <td class=xl6725367 style='border-top:none;border-left:none'>　</td>
+  <td class=xl6725367 style='border-top:none;border-left:none'>　</td>
+  <td class=xl6725367 style='border-top:none;border-left:none'>6</td>
+  <td class=xl6725367 style='border-top:none;border-left:none'>　</td>
+  <td class=xl6725367 style='border-top:none;border-left:none'>　</td>
+  <td colspan=7 rowspan=3 class=xl7125367 width=158 style='width:119pt'>备注</td>
+ </tr>
+ <tr height=35 style='mso-height-source:userset;height:26.4pt'>
+  <td colspan=5 height=35 class=xl6525367 style='height:26.4pt'>苏泊尔</td>
+  <td class=xl6725367 style='border-top:none;border-left:none'>2</td>
+  <td class=xl6725367 style='border-top:none;border-left:none'>个</td>
+  <td class=xl6725367 style='border-top:none;border-left:none'>208</td>
+  <td class=xl6725367 style='border-top:none;border-left:none'>　</td>
+  <td class=xl6725367 style='border-top:none;border-left:none'>　</td>
+  <td class=xl6725367 style='border-top:none;border-left:none'>4</td>
+  <td class=xl6725367 style='border-top:none;border-left:none'>1</td>
+  <td class=xl6725367 style='border-top:none;border-left:none'>　</td>
+ </tr>
+ <tr height=35 style='mso-height-source:userset;height:26.4pt'>
+  <td colspan=5 height=35 class=xl6525367 style='height:26.4pt'>格力空调</td>
+  <td class=xl6725367 style='border-top:none;border-left:none'>18</td>
+  <td class=xl6725367 style='border-top:none;border-left:none'>台</td>
+  <td class=xl6725367 style='border-top:none;border-left:none'>666</td>
+  <td class=xl6725367 style='border-top:none;border-left:none'>1</td>
+  <td class=xl6725367 style='border-top:none;border-left:none'>1</td>
+  <td class=xl6725367 style='border-top:none;border-left:none'>9</td>
+  <td class=xl6725367 style='border-top:none;border-left:none'>8</td>
+  <td class=xl6725367 style='border-top:none;border-left:none'>　</td>
+ </tr>
+ <tr height=35 style='mso-height-source:userset;height:26.4pt'>
+  <td colspan=5 height=35 class=xl6525367 style='height:26.4pt'>格力空调</td>
+  <td class=xl6725367 style='border-top:none;border-left:none'>###</td>
+  <td class=xl6725367 style='border-top:none;border-left:none'>个</td>
+  <td class=xl6725367 style='border-top:none;border-left:none'>169</td>
+  <td class=xl6725367 style='border-top:none;border-left:none'>16</td>
+  <td class=xl6725367 style='border-top:none;border-left:none'>9</td>
+  <td class=xl6725367 style='border-top:none;border-left:none'>　</td>
+  <td class=xl6725367 style='border-top:none;border-left:none'>　</td>
+  <td class=xl6725367 style='border-top:none;border-left:none'>　</td>
+  <td colspan=7 rowspan=3 class=xl7325367 width=158 style='border-bottom:.5pt solid black;
   width:119pt'>京东官方授权、正品低价、售后无忧。全品类、全品牌应有尽有，全屋家电一站式购齐。</td>
-			</tr>
-			<tr height=35 style='mso-height-source:userset;height:26.4pt'>
-				<td colspan=5 height=35 class=xl6525367 style='height:26.4pt'><?php echo $pdata['mydata5']['product'] ?></td>
-				<td class=xl6725367 style='border-top:none;border-left:none'><?php echo $pdata['mydata5']['nums']==0?"":$pdata['mydata5']['nums']  ?></td>
-				<td class=xl6725367 style='border-top:none;border-left:none'><?php echo $pdata['mydata5']['unit'] ?></td>
-				<td class=xl6725367 style='border-top:none;border-left:none'><?php echo $pdata['mydata5']['price']==0?"":$pdata['mydata5']['price']  ?></td>
-				<td class=xl6725367 style='border-top:none;border-left:none'>  </td>
-				<td class=xl6725367 style='border-top:none;border-left:none'>　</td>
-				<td class=xl6725367 style='border-top:none;border-left:none'>　</td>
-				<td class=xl6725367 style='border-top:none;border-left:none'>　</td>
-				<td class=xl6725367 style='border-top:none;border-left:none'>　</td>
-			</tr>
-			<tr height=35 style='mso-height-source:userset;height:26.4pt'>
-				<td colspan=8 height=35 class=xl7725367 style='height:26.4pt'>合计金额<span style='mso-spacerun:yes'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-					</span>万<span style='mso-spacerun:yes'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-					</span>仟<span style='mso-spacerun:yes'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-					</span>佰<span style='mso-spacerun:yes'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-					</span>十<span style='mso-spacerun:yes'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-					</span>元<span style='mso-spacerun:yes'>&nbsp;&nbsp;</span></td>
-				<td class=xl6325367 style='border-top:none'>&yen;</td>
-				<td colspan=4 class=xl7525367 style='border-right:.5pt solid black'><?php echo $totals_money ?></td>
-			</tr>
-			<tr height=32 style='mso-height-source:userset;height:24.0pt'>
-				<td colspan=20 height=32 class=xl6925367 style='height:24.0pt'>专业、专注、专营：京东所有品牌大小家电，网购代下单、样机体验、实体店购物，价格全网最低</td>
-				<td class=xl6625367></td>
-			</tr>
-			<tr height=21 style='mso-height-source:userset;height:15.6pt'>
-				<td colspan=20 height=21 class=xl6925367 style='height:15.6pt'>注：此单为保修凭证，敬请保存。自然灾害，人为损坏，雷击鼠咬，非正常使用之商品不在保修范围</td>
-				<td class=xl6625367></td>
-			</tr>
-			<![if supportMisalignedColumns]>
-			<tr height=0 style='display:none'>
-				<td width=43 style='width:32pt'></td>
-				<td width=54 style='width:41pt'></td>
-				<td width=43 style='width:32pt'></td>
-				<td width=43 style='width:32pt'></td>
-				<td width=26 style='width:20pt'></td>
-				<td width=32 style='width:24pt'></td>
-				<td width=33 style='width:25pt'></td>
-				<td width=51 style='width:38pt'></td>
-				<td width=20 style='width:15pt'></td>
-				<td width=20 style='width:15pt'></td>
-				<td width=20 style='width:15pt'></td>
-				<td width=22 style='width:17pt'></td>
-				<td width=22 style='width:16pt'></td>
-				<td width=5 style='width:4pt'></td>
-				<td width=46 style='width:35pt'></td>
-				<td width=19 style='width:14pt'></td>
-				<td width=22 style='width:17pt'></td>
-				<td width=19 style='width:14pt'></td>
-				<td width=26 style='width:19pt'></td>
-				<td width=21 style='width:16pt'></td>
-				<td width=33 style='width:25pt'></td>
-			</tr>
-			<![endif]>
-		</table>
+ </tr>
+ <tr height=35 style='mso-height-source:userset;height:26.4pt'>
+  <td colspan=5 height=35 class=xl6525367 style='height:26.4pt'>手机</td>
+  <td class=xl6725367 style='border-top:none;border-left:none'>2</td>
+  <td class=xl6725367 style='border-top:none;border-left:none'>个</td>
+  <td class=xl6725367 style='border-top:none;border-left:none'>2</td>
+  <td class=xl6725367 style='border-top:none;border-left:none'>　</td>
+  <td class=xl6725367 style='border-top:none;border-left:none'>　</td>
+  <td class=xl6725367 style='border-top:none;border-left:none'>　</td>
+  <td class=xl6725367 style='border-top:none;border-left:none'>　</td>
+  <td class=xl6725367 style='border-top:none;border-left:none'>　</td>
+ </tr>
+ <tr height=35 style='mso-height-source:userset;height:26.4pt'>
+  <td colspan=8 height=35 class=xl7725367 style='height:26.4pt'>合计金额<span
+  style='mso-spacerun:yes'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span>万<span style='mso-spacerun:yes'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span>仟<span style='mso-spacerun:yes'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span>佰<span style='mso-spacerun:yes'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span>十<span style='mso-spacerun:yes'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span>元<span style='mso-spacerun:yes'>&nbsp;&nbsp;</span></td>
+  <td class=xl6325367 style='border-top:none'>&yen;</td>
+  <td colspan=4 class=xl7525367 style='border-right:.5pt solid black'>182008</td>
+ </tr>
+ <tr height=32 style='mso-height-source:userset;height:24.0pt'>
+  <td colspan=20 height=32 class=xl6925367 style='height:24.0pt'>专业、专注、专营：京东所有品牌大小家电，网购代下单、样机体验、实体店购物，价格全网最低</td>
+  <td class=xl6625367></td>
+ </tr>
+ <tr height=21 style='mso-height-source:userset;height:15.6pt'>
+  <td colspan=20 height=21 class=xl6925367 style='height:15.6pt'>注：此单为保修凭证，敬请保存。自然灾害，人为损坏，雷击鼠咬，非正常使用之商品不在保修范围</td>
+  <td class=xl6625367></td>
+ </tr>
+ <![if supportMisalignedColumns]>
+ <tr height=0 style='display:none'>
+  <td width=43 style='width:32pt'></td>
+  <td width=54 style='width:41pt'></td>
+  <td width=43 style='width:32pt'></td>
+  <td width=43 style='width:32pt'></td>
+  <td width=26 style='width:20pt'></td>
+  <td width=32 style='width:24pt'></td>
+  <td width=33 style='width:25pt'></td>
+  <td width=51 style='width:38pt'></td>
+  <td width=20 style='width:15pt'></td>
+  <td width=20 style='width:15pt'></td>
+  <td width=20 style='width:15pt'></td>
+  <td width=22 style='width:17pt'></td>
+  <td width=22 style='width:16pt'></td>
+  <td width=5 style='width:4pt'></td>
+  <td width=46 style='width:35pt'></td>
+  <td width=19 style='width:14pt'></td>
+  <td width=22 style='width:17pt'></td>
+  <td width=19 style='width:14pt'></td>
+  <td width=26 style='width:19pt'></td>
+  <td width=21 style='width:16pt'></td>
+  <td width=33 style='width:25pt'></td>
+ </tr>
+ <![endif]>
+</table>
+
+</div>
 
 
-
-		<!--endprint-->
-		<br /><a href="../controller/action.php?flag=print">《远程打印》</a>
-		<a href="../controller/input.php">《返 回》</a>&nbsp&nbsp&nbsp
-		<INPUT type=button value=本地打印 name=button_print onclick=javascript:doPrint() />&nbsp&nbsp&nbsp
-		<INPUT type=button value=重新开票 name=button_again onclick=javascript:doPrintAgain("刘建康") />&nbsp&nbsp&nbsp
-		<input type="text" size="30" value=输入要开票的客户名称 onkeyup="showResult(this.value)">
-		<div id="livesearch"></div>
-		<!--以上添加-->
-
-
-
-
-
-	</div>
-
-
-	<!----------------------------->
-	<!--“从 EXCEL 发布网页”向导结束-->
-	<!----------------------------->
+<!----------------------------->
+<!--“从 EXCEL 发布网页”向导结束-->
+<!----------------------------->
 </body>
 
 </html>

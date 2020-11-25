@@ -1,14 +1,5 @@
 <?php
-    session_start();
-    if (empty($_SESSION['uid'])){//判断用于存储用户名的Session会话变量是否为空
-        if (! isset( $_SESSION ['uid'] )) {
-            echo "请登录后使用！";
-            Header("refresh:1;url='../index.html'");
-        }
-        exit;
-    }else{
-         $uid = $_SESSION['uid'] ;     //将会话变量赋给一个变量$myvalue
-    }
+	include "sessionid.php";
 
 	//接收表单数据，增加一个新的信息
 	$username = @$_POST['username']?$_POST['username']:"刘建康";

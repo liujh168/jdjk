@@ -12,6 +12,7 @@ if ($flag==$regist) {
     echo "注册";
     header('location:../regist.html');
 }else if ($flag==$login){
+	
     include "../model/Conn.php";
     
     //查询登录名和密码匹配

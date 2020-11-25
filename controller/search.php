@@ -10,18 +10,7 @@
 <body style="background-color:lightblue">
     <center>
 	<?php
-        session_start();
-        if (empty($_SESSION['uid'])){//判断用于存储用户名的Session会话变量是否为空
-            if (! isset( $_SESSION ['uid'] )) {
-				echo "<center>";
-				echo "请登录后使用！<br/>";
-				echo "</center>";
-				Header("refresh:1;url='../index.html'");
-            }
-            exit;
-        }else{
-             $uid = $_SESSION['uid'] ;     //将会话变量赋给一个变量$myvalue
-        }
+		include "sessionid.php";
     
 		$username = @$_GET['id']?$_GET['id']:"";
 		$phone = @$_GET['phone']?$_GET['phone']:"";
@@ -33,6 +22,9 @@
 		$attr = $res->fetch_all();
 		$res->close();
 		$mysqli->close();
+		if($username!=""){
+			$_SESSION['username']=$username;
+		}
 	 ?>
     
 	<h2 align="center">您找到以下客户</h2>

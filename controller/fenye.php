@@ -1,7 +1,8 @@
 <?php 
 	//分页算法
 	
-	session_start();
+	include "sessionid.php";
+
 	include '../model/Conn.php';
 
 	$page = $_GET['page'];

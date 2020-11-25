@@ -8,25 +8,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="../css/style.css">
  
-    <?php
-    session_start();
-    if (empty($_SESSION['uid'])) { //判断用于存储用户名的Session会话变量是否为空
-        //echo "session_uid为空！<br/>";
-        if (!isset($_SESSION['uid'])) {
-            //echo "session_uid not set!<br/>";
-        } else {
-            //echo "session_uid set!<br/>";
-        }
-        echo "<center>";
-        echo "请登录后使用！<br/>";
-        echo "</center>";
-        Header("refresh:1;url='../index.html'");
-        exit;
-    } else {
-        $uid = $_SESSION['uid'];     //将会话变量赋给一个变量$myvalue
-    }
-    ?>
-
+	<?php include "sessionid.php";?>
+	
     <script src="https://upcdn.b0.upaiyun.com/libs/jquery/jquery-2.0.2.min.js"> </script>
     <script>
         function CheckPost() {
@@ -147,8 +130,7 @@
                 <li><a href="action.php?flag=preview" target="_blank">打印预览</a></li>
                 <li><a href="loginOut.php" target="_blank">退出系统</a></li>
                 <li><a href="../打印模板.xlsm" target="_blank">下载打印模板文件</a></li>
-                <li><a href="#" target="_self"><?php echo "<br>"; echo "当前用户：$uid"; ?></a></li>
-                
+			    <li> <?php echo "<br>"; echo "当前用户：$_SESSION[uid]"; ?></li>
             </ul>
         </aside>
         <section class="post">
