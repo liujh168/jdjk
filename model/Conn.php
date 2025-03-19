@@ -3,7 +3,7 @@
     'host'    =>'127.0.0.1:3306',
     'db'      =>'jdjk',
     'db_user'=>'root',
-    'db_pwd' =>'ljH5686!',
+    'db_pwd' =>'1355686',
     );
 	$mysqli=new mysqli($mysql_conf['host'],$mysql_conf['db_user'],$mysql_conf['db_pwd']);
 	if($mysqli->connect_errno){
